@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星際營養師：輕量化極限挑戰</title>
+    <style>
+        :root {
+            --space-bg: #05070f;
+            --card-bg: rgba(13, 19, 33, 0.85);
+            --panel-bg: rgba(22, 33, 54, 0.75);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-amber: #fbbf24;
+            --accent-red: #f87171;
+            --accent-purple: #c084fc;
+            --glow-blue: rgba(56, 189, 248, 0.35);
+            --glow-amber: rgba(251, 191, 36, 0.35);
+            --glow-green: rgba(74, 222, 128, 0.35);
+            --glow-red: rgba(248, 113, 113, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--space-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Interactive customized cyberpunk scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #060913;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 4px;
+            border: 2px solid #060913;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7dd3fc;
+            box-shadow: 0 0 10px var(--glow-blue);
+        }
+
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #0a0f24 0%, #03050c 100%);
+        }
+
+        /* Scanline Overlay for Cyberpunk Vibe */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            background: linear-gradient(rgba(18, 24, 45, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(56, 189, 248, 0.02), rgba(0, 0, 0, 0));
+            background-size: 100% 4px, 6px 100%;
+            opacity: 0.85;
+        }
+
+        header {
+            text-align: center;
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.8) 0%, rgba(10, 15, 30, 0.9) 100%);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 35px;
+            border-radius: 20px;
+            border: 2px solid #1e293b;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 20px rgba(56, 189, 248, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+        }
+
+        header h1 {
+            font-size: 32pt;
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px var(--glow-blue);
+            font-weight: 800;
+        }
+
+        header p {
+            color: #e2e8f0;
+            font-size: 14pt;
+            line-height: 1.7;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header strong {
+            color: var(--accent-amber);
+            text-shadow: 0 0 8px var(--glow-amber);
+        }
+
+        .mission-selector {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            width: 100%;
+        }
+
+        .mission-btn {
+            background-color: rgba(11, 15, 25, 0.7);
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-main);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(56, 189, 248, 0.15);
+        }
+
+        .mission-btn.active {
+            border-color: var(--accent-amber);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(251, 191, 36, 0.05) 100%);
+            color: var(--text-main);
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.15);
+        }
+
+        /* Blinking corner dot representing online system connection */
+        .mission-btn::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #475569;
+            transition: background-color 0.3s;
+        }
+        .mission-btn.active::after {
+            background-color: var(--accent-amber);
+            box-shadow: 0 0 8px var(--accent-amber);
+            animation: cyber-blink 1s infinite alternate;
+        }
+
+        @keyframes cyber-blink {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .mission-btn h3 {
+            font-size: 14pt;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f3f4f6;
+        }
+
+        .mission-btn.active h3 { color: var(--accent-amber); }
+
+        .mission-btn p {
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+
+        .difficulty-badge {
+            font-size: 9pt;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-left: auto;
+        }
+
+        .diff-easy { background-color: rgba(74, 222, 128, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .diff-medium { background-color: rgba(251, 191, 36, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+        .diff-hard { background-color: rgba(248, 113, 113, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        @media (min-width: 1100px) {
+            .game-container { grid-template-columns: 1.3fr 1fr; }
+        }
+
+        .pantry-section, .dashboard-section {
+            background-color: var(--panel-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #1e293b;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.6), 0 0 20px rgba(56, 189, 248, 0.02);
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .pantry-section:hover {
+            box-shadow: 0 10px 35px rgba(0,0,0,0.6), 0 0 25px rgba(56, 189, 248, 0.06);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+        
+        .dashboard-section:hover {
+            box-shadow: 0 10px 35px rgba(0,0,0,0.6), 0 0 25px rgba(251, 191, 36, 0.06);
+            border-color: rgba(251, 191, 36, 0.2);
+        }
+
+        .section-title {
+            font-size: 18pt;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-reset {
+            background-color: rgba(248, 113, 113, 0.1);
+            border: 2px solid var(--accent-red);
+            color: var(--accent-red);
+            font-size: 11pt;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-reset:hover {
+            background-color: var(--accent-red);
+            color: #05070f;
+            box-shadow: 0 0 15px rgba(248, 113, 113, 0.4);
+        }
+
+        .food-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .food-card {
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 20px;
+            border: 2px solid #1e293b;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .food-card:hover {
+            border-color: #38bdf8;
+            transform: translateX(4px);
+            background-color: rgba(22, 33, 54, 0.95);
+        }
+
+        .food-card.selected {
+            border-color: var(--accent-blue);
+            box-shadow: inset 4px 0 0 var(--accent-blue), 0 4px 20px rgba(56, 189, 248, 0.1);
+            background-color: rgba(13, 23, 42, 0.95);
+        }
+
+        /* Dynamic glint bar running through chosen cards */
+        .food-card.selected::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -150%;
+            width: 40%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.1), transparent);
+            transform: skewX(-25deg);
+            animation: neon-sweep 4.5s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes neon-sweep {
+            0% { left: -150%; }
+            100% { left: 200%; }
+        }
+
+        @media (min-width: 650px) {
+            .food-card { flex-direction: row; align-items: center; gap: 20px; }
+        }
+
+        .food-info { flex: 1; }
+
+        .food-info h3 {
+            font-size: 15pt;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .food-desc {
+            font-size: 11.5pt;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .food-stats-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .stat-tag {
+            font-size: 9.5pt;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background-color: #1e293b;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .stat-tag.pos { background-color: rgba(74, 222, 128, 0.12); color: var(--accent-green); border: 1px solid rgba(74, 222, 128, 0.25); }
+        .stat-tag.neg { background-color: rgba(248, 113, 113, 0.12); color: var(--accent-red); border: 1px solid rgba(248, 113, 113, 0.25); }
+
+        .food-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #060913;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 2px solid #1e293b;
+            min-width: 180px;
+            margin-top: 15px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .food-controls:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+        }
+
+        @media (min-width: 650px) { .food-controls { margin-top: 0; } }
+
+        .btn-ctrl {
+            background-color: #1e293b;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            font-size: 18pt;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .btn-ctrl:hover:not(:disabled) { background-color: var(--accent-blue); transform: scale(1.05); }
+        .btn-ctrl:active:not(:disabled) { transform: scale(0.92); }
+        .btn-ctrl:disabled { opacity: 0.15; cursor: not-allowed; }
+
+        .weight-display {
+            font-size: 14pt;
+            font-weight: 700;
+            color: var(--text-main);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .weight-master-box {
+            background: linear-gradient(180deg, #060913 0%, #0d1321 100%);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 2px solid #1e293b;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .weight-master-box.perfect-saving {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.15);
+        }
+
+        .weight-title { font-size: 13pt; color: #cbd5e1; margin-bottom: 5px; }
+        .weight-sub-title { font-size: 10.5pt; color: var(--text-muted); margin-bottom: 12px; }
+        
+        .weight-counter {
+            font-size: 32pt;
+            font-weight: 800;
+            color: var(--accent-blue);
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .weight-counter.success {
+            color: var(--accent-green);
+            text-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .weight-counter.warning {
+            color: var(--accent-red);
+            text-shadow: 0 0 15px rgba(248, 113, 113, 0.5);
+            animation: core-pulse 1s infinite alternate cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        @keyframes core-pulse {
+            from { opacity: 1; } to { opacity: 0.8; }
+        }
+
+        .indicator-group { display: flex; flex-direction: column; gap: 18px; margin-bottom: 25px; }
+        .indicator-item { background-color: var(--card-bg); padding: 18px; border-radius: 14px; border: 2px solid #1e293b; }
+        .indicator-labels { display: flex; justify-content: space-between; font-size: 12pt; margin-bottom: 10px; align-items: center; }
+        .indicator-name { font-weight: 700; color: #f3f4f6; }
+        
+        /* Interactive dynamic bio-metric icons */
+        .indicator-icon {
+            display: inline-block;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        
+        /* Shaking dynamic nervous alarm */
+        .icon-danger {
+            animation: hud-shake 0.4s infinite linear;
+            filter: drop-shadow(0 0 6px var(--accent-red));
+        }
+        
+        .icon-warning {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 4px var(--accent-amber));
+        }
+        
+        /* Calm breathing glow on success */
+        .icon-success {
+            animation: hud-pulse 1.5s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes hud-shake {
+            0%, 100% { transform: translate(0, 0) scale(1.1); }
+            10% { transform: translate(-1.5px, -0.5px) scale(1.15); }
+            30% { transform: translate(1.5px, 0.5px) scale(1.1); }
+            50% { transform: translate(-1px, 1px) scale(1.15); }
+            70% { transform: translate(1px, -1px) scale(1.1); }
+            90% { transform: translate(-0.5px, -1px) scale(1.15); }
+        }
+
+        @keyframes hud-pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(74, 222, 128, 0.5)); }
+            100% { transform: scale(1.25); filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.95)); }
+        }
+
+        .progress-container { 
+            background-color: #060913; 
+            height: 24px; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            position: relative; 
+            border: 2px solid #1e293b; 
+        }
+        
+        /* Bar design upgrade - segmented/energy LED design look */
+        .progress-bar { 
+            height: 100%; 
+            width: 0%; 
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease; 
+            background-image: repeating-linear-gradient(
+                90deg, 
+                rgba(255, 255, 255, 0.15) 0px, 
+                rgba(255, 255, 255, 0.15) 8px, 
+                transparent 8px, 
+                transparent 12px
+            );
+            background-size: 12px 100%;
+        }
+        
+        .target-line {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            border-left: 2px dashed rgba(255, 255, 255, 0.4);
+            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 4;
+        }
+
+        /* Dynamic Neon HUD target sliding pointers */
+        .target-pointer {
+            position: absolute;
+            top: 50%;
+            width: 4px;
+            height: 32px;
+            background-color: #ffffff;
+            box-shadow: 0 0 12px #ffffff, 0 0 4px #ffffff;
+            transform: translate(-50%, -50%);
+            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 6;
+            pointer-events: none;
+            border-radius: 2px;
+        }
+        
+        .target-pointer::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #ffffff;
+        }
+        
+        .target-pointer::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #ffffff;
+        }
+
+        .target-text { font-size: 9.5pt; color: #05070f; background-color: #ffffff; padding: 2px 6px; border-radius: 4px; font-weight: 800; }
+
+        .btn-launch {
+            width: 100%;
+            border: none;
+            padding: 22px;
+            border-radius: 16px;
+            font-size: 16pt;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-launch.cold-idle {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #64748b;
+            border: 2px solid #334155;
+            box-shadow: none;
+        }
+        .btn-launch.cold-idle:hover {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            color: var(--text-main);
+        }
+
+        .btn-launch.golden-ion {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 50%, #0369a1 100%);
+            background-size: 200% 200%;
+            color: #ffffff;
+            border: 2px solid #7dd3fc;
+            box-shadow: 0 0 25px rgba(56,189,248,0.5), inset 0 0 10px rgba(255,255,255,0.2);
+            animation: ion-breath 2s infinite alternate linear, gradient-shift 4s infinite alternate;
+        }
+
+        /* Glint sweeping overlay specifically for the activation switch */
+        .btn-launch.golden-ion::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 30%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-20deg);
+            animation: neon-sweep 3s infinite linear;
+        }
+
+        .btn-launch.golden-ion:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 40px rgba(56,189,248,0.8), 0 0 15px rgba(255,255,255,0.4);
+        }
+        .btn-launch.golden-ion:active { transform: translateY(-1px); }
+
+        @keyframes ion-breath {
+            0% { box-shadow: 0 0 15px rgba(56,189,248,0.4); transform: scale(1); }
+            100% { box-shadow: 0 0 35px rgba(56,189,248,0.8); transform: scale(1.01); }
+        }
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .btn-sub-tip {
+            font-size: 10.5pt;
+            display: block;
+            margin-top: 6px;
+            font-weight: normal;
+            opacity: 0.85;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(3, 5, 12, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; opacity: 0; pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); padding: 24px;
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        /* Scanning State Matrix Animation */
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(56, 189, 248, 0) 95%, rgba(56, 189, 248, 0.15) 98%, rgba(56, 189, 248, 0) 100%);
+            background-size: 100% 200px;
+            animation: overlay-scan 4s infinite linear;
+            pointer-events: none;
+            z-index: 101;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.scanning::before { opacity: 1; }
+
+        @keyframes overlay-scan {
+            0% { background-position: 0 -200px; }
+            100% { background-position: 0 100vh; }
+        }
+
+        .modal-content {
+            background-color: rgba(13, 20, 38, 0.95);
+            border-radius: 24px;
+            max-width: 750px; width: 100%;
+            padding: 40px; text-align: center;
+            transform: scale(0.85) translateY(20px);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease, border-color 0.5s ease;
+            position: relative;
+            border: 2px solid #334155;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+        /* Technical Border Accents */
+        .modal-content::after {
+            content: '';
+            position: absolute;
+            width: 15px; height: 15px;
+            border-top: 3px solid var(--accent-blue);
+            border-left: 3px solid var(--accent-blue);
+            top: 15px; left: 15px;
+        }
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            width: 15px; height: 15px;
+            border-bottom: 3px solid var(--accent-blue);
+            border-right: 3px solid var(--accent-blue);
+            bottom: 15px; right: 15px;
+        }
+
+        /* Vibration / Shake Effect for Hard Failure */
+        @keyframes cyber-vibrate {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-4px, -2px) rotate(-0.5deg); }
+            20% { transform: translate(3px, 2px) rotate(0.5deg); }
+            30% { transform: translate(-3px, 3px) rotate(-1deg); }
+            40% { transform: translate(2px, -3px) rotate(1deg); }
+            50% { transform: translate(-2px, 1px) rotate(-0.5deg); }
+            60% { transform: translate(3px, -2px) rotate(0.5deg); }
+            70% { transform: translate(-3px, -1px) rotate(1deg); }
+            80% { transform: translate(2px, 3px) rotate(-0.5deg); }
+            95% { transform: translate(-1px, -2px) rotate(0deg); }
+        }
+        .modal-content.shake {
+            animation: cyber-vibrate 0.35s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        .modal-overlay.glow-green .modal-content { border-color: var(--accent-green); box-shadow: 0 0 60px rgba(74, 222, 128, 0.4), inset 0 0 15px rgba(74, 222, 128, 0.05); }
+        .modal-overlay.glow-yellow .modal-content { border-color: var(--accent-amber); box-shadow: 0 0 60px rgba(251, 191, 36, 0.4), inset 0 0 15px rgba(251, 191, 36, 0.05); }
+        .modal-overlay.glow-red .modal-content { border-color: var(--accent-red); box-shadow: 0 0 70px rgba(248, 113, 113, 0.5), inset 0 0 20px rgba(248, 113, 113, 0.05); }
+
+        .modal-icon { font-size: 60pt; margin-bottom: 20px; display: inline-block; filter: drop-shadow(0 0 12px currentColor); }
+        
+        .modal-title { font-size: 24pt; margin-bottom: 20px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+        .modal-title.win { color: var(--accent-green); text-shadow: 0 0 15px var(--glow-green); }
+        .modal-title.warn-fail { color: var(--accent-amber); text-shadow: 0 0 15px var(--glow-amber); }
+        .modal-title.crit-fail { color: var(--accent-red); text-shadow: 0 0 20px var(--glow-red); }
+
+        .modal-diagnostic-summary {
+            background-color: rgba(5, 7, 15, 0.8);
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            padding: 18px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            text-align: left;
+        }
+
+        .diagnostic-card {
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            border-left: 3px solid var(--accent-blue);
+        }
+        .diagnostic-card.danger { border-left-color: var(--accent-red); }
+        .diagnostic-card.warning { border-left-color: var(--accent-amber); }
+        .diagnostic-card.success { border-left-color: var(--accent-green); }
+
+        .diagnostic-card .diag-label { font-size: 8.5pt; color: var(--text-muted); text-transform: uppercase; }
+        .diagnostic-card .diag-stat { font-size: 13.5pt; font-weight: bold; color: #fff; margin-top: 4px; }
+
+        .modal-text {
+            font-size: 13pt; color: var(--text-main); line-height: 1.7;
+            margin-bottom: 30px; text-align: left; background-color: rgba(6, 9, 19, 0.9);
+            padding: 25px; border-radius: 14px; border: 2px solid #1e293b;
+            max-height: 300px; overflow-y: auto;
+            position: relative;
+        }
+
+        .ai-tip-container {
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.05) 0%, rgba(5, 7, 15, 0.4) 100%);
+            border-radius: 10px;
+            border: 1px dashed rgba(56, 189, 248, 0.3);
+        }
+
+        /* Scan Line Scanning Animation inside Modal Content */
+        .cyber-loader {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+        }
+        .cyber-loader .spinner {
+            width: 60px; height: 60px;
+            border: 4px solid rgba(56, 189, 248, 0.1);
+            border-left-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            margin-bottom: 20px;
+        }
+        .cyber-loader .loader-text {
+            font-family: monospace;
+            font-size: 14pt;
+            color: var(--accent-blue);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--glow-blue);
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .btn-close {
+            background-color: var(--accent-blue); color: #05070f;
+            border: none; padding: 16px 40px; border-radius: 10px;
+            font-size: 13pt; font-weight: bold; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+        .btn-close:hover { background-color: white; transform: scale(1.03); box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); }
+
+        #toast-container {
+            position: fixed;
+            top: 24px; right: 24px;
+            display: flex; flex-direction: column;
+            gap: 12px; z-index: 200;
+            pointer-events: none;
+        }
+
+        .toast-box {
+            background: rgba(13, 19, 33, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-left: 5px solid var(--accent-blue);
+            color: var(--text-main);
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-size: 12pt;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 12px;
+            min-width: 300px; max-width: 450px;
+            transform: translateX(120%);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: auto;
+            border: 1px solid rgba(56, 189, 248, 0.1);
+            border-left-width: 5px;
+        }
+
+        .toast-box.show { transform: translateX(0); }
+        .toast-box.success { border-left-color: var(--accent-green); }
+        .toast-box.warning { border-left-color: var(--accent-amber); }
+        .toast-box.error { border-left-color: var(--accent-red); }
+    </style>
+</head>
+<body>
+
+    <!-- Stars Canvas Background -->
+    <canvas id="starfield"></canvas>
+    
+    <!-- Cyberpunk Scanning Lines Screen Overlay -->
+    <div class="scanlines"></div>
+
+    <div id="toast-container"></div>
+
+    <header>
+        <h1>🚀 星際營養師：輕量化極限挑戰</h1>
+        <p>太空燃料成本高昂，<strong>總載荷上限為 1000g</strong>。在滿足營養目標的前提下，<strong>食物的總重量越輕越好！</strong></p>
+        
+        <div class="mission-selector">
+            <button id="btn-m1" class="mission-btn active" onclick="selectMission('m1')">
+                <h3>🛰️ 駐守太空站 <span class="difficulty-badge diff-easy">常規難度</span></h3>
+                <p>日常科研任務，環境穩定，所有營養與水分指數達到 70% 即可安全升空。</p>
+            </button>
+            <button id="btn-m2" class="mission-btn" onclick="selectMission('m2')">
+                <h3>☀️ 防禦太陽風暴 <span class="difficulty-badge diff-medium">中等難度</span></h3>
+                <p>強烈輻射襲來！必須引入高劑量葉酸，將【🛡️ 輻射抗性】提升至 90% 以上。</p>
+            </button>
+            <button id="btn-m3" class="mission-btn" onclick="selectMission('m3')">
+                <h3>🦾 艙外漫步維修 <span class="difficulty-badge diff-hard">高難度</span></h3>
+                <p>進行 8 小時體力勞動，必須將【🔋 能量供應】與【💪 肌肉維持】提升至 85%。</p>
+            </button>
+            <button id="btn-m4" class="mission-btn" onclick="selectMission('m4')">
+                <h3>🌌 深空長途航行 <span class="difficulty-badge diff-hard">極高難度</span></h3>
+                <p>面臨便秘與抑鬱風險，必須將【🥬 腸道健康】與【❤️ 心理士氣】同時提升至 90%。</p>
+            </button>
+        </div>
+    </header>
+
+    <div class="game-container">
+        <div class="pantry-section">
+            <h2 class="section-title">
+                <span>🍱 太空食物菜單 <small style="font-size: 11pt; color: var(--text-muted); font-weight: normal;">(單位: 100g)</small></span>
+                <button class="btn-reset" onclick="resetPantry()">🗑️ 一鍵清空菜單</button>
+            </h2>
+            <div id="food-list" class="food-grid"></div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2 class="section-title">📊 生命與物資監測儀 <span id="current-scenario-indicator" style="font-size: 12pt; color: var(--accent-amber); font-weight: bold;">任務：駐守太空站</span></h2>
+            
+            <div id="weight-box" class="weight-master-box">
+                <div class="weight-title">⚖️ 一日菜單總重量 (載荷上限 1000g)</div>
+                <div id="weight-saved" class="weight-sub-title">尚未配置任何物資</div>
+                <div id="total-weight" class="weight-counter">0 g</div>
+            </div>
+
+            <div class="indicator-group">
+                <div class="indicator-item">
+                    <div class="indicator-labels">
+                        <span class="indicator-name" id="label-water" style="color: var(--accent-blue);">
+                            <span id="icon-water" class="indicator-icon">💧</span> 生存要素 (水分與電解質)
+                        </span>
+                        <div>
+                            <span class="target-text">目標: <span id="tgt-val-water">70</span>%</span>
+                            <span id="val-water" style="font-weight: bold; margin-left: 8px; color: white;">0%</span>
+                        </div>
+                    </div>
+                    <div class="progress-wrapper" style="position: relative; padding: 6px 0;">
+                        <div class="progress-container">
+                            <div id="bar-water" class="progress-bar"></div>
+                            <div id="tgt-line-water" class="target-line"></div>
+                        </div>
+                        <div id="tgt-pointer-water" class="target-pointer"></div>
+                    </div>
+                </div>
+
+                <div class="indicator-item">
+                    <div class="indicator-labels">
+                        <span class="indicator-name" id="label-energy" style="color: var(--accent-amber);">
+                            <span id="icon-energy" class="indicator-icon">🔋</span> 能量供應 (碳水化合物 / 脂肪)
+                        </span>
+                        <div>
+                            <span class="target-text">目標: <span id="tgt-val-energy">70</span>%</span>
+                            <span id="val-energy" style="font-weight: bold; margin-left: 8px; color: white;">0%</span>
+                        </div>
+                    </div>
+                    <div class="progress-wrapper" style="position: relative; padding: 6px 0;">
+                        <div class="progress-container">
+                            <div id="bar-energy" class="progress-bar"></div>
+                            <div id="tgt-line-energy" class="target-line"></div>
+                        </div>
+                        <div id="tgt-pointer-energy" class="target-pointer"></div>
+                    </div>
+                </div>
+
+                <div class="indicator-item">
+                    <div class="indicator-labels">
+                        <span class="indicator-name" id="label-protein" style="color: var(--text-main);">
+                            <span id="icon-protein" class="indicator-icon">💪</span> 肌肉維持 (優質蛋白質)
+                        </span>
+                        <div>
+                            <span class="target-text">目標: <span id="tgt-val-protein">70</span>%</span>
+                            <span id="val-protein" style="font-weight: bold; margin-left: 8px; color: white;">0%</span>
+                        </div>
+                    </div>
+                    <div class="progress-wrapper" style="position: relative; padding: 6px 0;">
+                        <div class="progress-container">
+                            <div id="bar-protein" class="progress-bar"></div>
+                            <div id="tgt-line-protein" class="target-line"></div>
+                        </div>
+                        <div id="tgt-pointer-protein" class="target-pointer"></div>
+                    </div>
+                </div>
+
+                <div class="indicator-item">
+                    <div class="indicator-labels">
+                        <span class="indicator-name" id="label-radiation" style="color: var(--accent-red);">
+                            <span id="icon-radiation" class="indicator-icon">🛡️</span> 輻射抗性 (維生素 C / E / 葉酸)
+                        </span>
+                        <div>
+                            <span class="target-text">目標: <span id="tgt-val-radiation">70</span>%</span>
+                            <span id="val-radiation" style="font-weight: bold; margin-left: 8px; color: white;">0%</span>
+                        </div>
+                    </div>
+                    <div class="progress-wrapper" style="position: relative; padding: 6px 0;">
+                        <div class="progress-container">
+                            <div id="bar-radiation" class="progress-bar"></div>
+                            <div id="tgt-line-radiation" class="target-line"></div>
+                        </div>
+                        <div id="tgt-pointer-radiation" class="target-pointer"></div>
+                    </div>
+                </div>
+
+                <div class="indicator-item">
+                    <div class="indicator-labels">
+                        <span class="indicator-name" id="label-fibre" style="color: var(--accent-green);">
+                            <span id="icon-fibre" class="indicator-icon">🥬</span> 腸道健康 (食用纖維)
+                        </span>
+                        <div>
+                            <span class="target-text">目標: <span id="tgt-val-fibre">70</span>%</span>
+                            <span id="val-fibre" style="font-weight: bold; margin-left: 8px; color: white;">0%</span>
+                        </div>
+                    </div>
+                    <div class="progress-wrapper" style="position: relative; padding: 6px 0;">
+                        <div class="progress-container">
+                            <div id="bar-fibre" class="progress-bar"></div>
+                            <div id="tgt-line-fibre" class="target-line"></div>
+                        </div>
+                        <div id="tgt-pointer-fibre" class="target-pointer"></div>
+                    </div>
+                </div>
+
+                <div class="indicator-item">
+                    <div class="indicator-labels">
+                        <span class="indicator-name" id="label-morale" style="color: var(--accent-purple);">
+                            <span id="icon-morale" class="indicator-icon">❤️</span> 心理士氣 (多巴胺 / 風味安慰食品)
+                        </span>
+                        <div>
+                            <span class="target-text">目標: <span id="tgt-val-morale">70</span>%</span>
+                            <span id="val-morale" style="font-weight: bold; margin-left: 8px; color: white;">0%</span>
+                        </div>
+                    </div>
+                    <div class="progress-wrapper" style="position: relative; padding: 6px 0;">
+                        <div class="progress-container">
+                            <div id="bar-morale" class="progress-bar"></div>
+                            <div id="tgt-line-morale" class="target-line"></div>
+                        </div>
+                        <div id="tgt-pointer-morale" class="target-pointer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-launch" class="btn-launch cold-idle" onclick="startVerificationSequence()">
+                <span id="btn-main-text">⚠️ 尚未配置物資</span>
+                <span id="btn-sub-text" class="btn-sub-tip">請先調配食物以啟動模擬</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Interactive Scientific Verification Result Modal -->
+    <div id="result-modal" class="modal-overlay">
+        <div id="modal-wrapper" class="modal-content">
+            
+            <!-- Real-time Decryption/Scanning sequence block -->
+            <div id="loader-stage" class="cyber-loader">
+                <div class="spinner"></div>
+                <div class="loader-text" id="loader-ticker">正在解析太空人生命表徵數據...</div>
+            </div>
+
+            <!-- Main diagnostics presentation block -->
+            <div id="diagnostics-stage" style="display: none;">
+                <div id="modal-icon" class="modal-icon">🚀</div>
+                <h2 id="modal-title" class="modal-title">任務判定中...</h2>
+                
+                <!-- Advanced Diagnostic Grid (Summary of Key Indexes) -->
+                <div class="modal-diagnostic-summary" id="modal-grid-summary">
+                    <!-- Dynamic updates via Javascript -->
+                </div>
+
+                <div id="modal-text" class="modal-text">結果說明</div>
+                <button class="btn-close" onclick="closeModal()">調整菜單</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Starfield Canvas Animation Logic
+        const canvas = document.getElementById("starfield");
+        const ctx = canvas.getContext("2d");
+        let stars = [];
+        const numStars = 80;
+
+        function initStarfield() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            stars = [];
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random(),
+                    twinkleSpeed: Math.random() * 0.02 + 0.005,
+                    driftSpeed: Math.random() * 0.15 + 0.05
+                });
+            }
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Deep space atmosphere background color
+            ctx.fillStyle = "rgba(5, 7, 15, 1)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            stars.forEach(star => {
+                // Subtle twinkling (shifting alpha channel)
+                star.alpha += star.twinkleSpeed;
+                if (star.alpha > 1 || star.alpha < 0.1) {
+                    star.twinkleSpeed = -star.twinkleSpeed;
+                }
+
+                // Slow space drift towards bottom-left
+                star.x -= star.driftSpeed;
+                star.y += star.driftSpeed * 0.5;
+
+                // Screen wraps
+                if (star.x < 0) star.x = canvas.width;
+                if (star.y > canvas.height) star.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.1, star.alpha)})`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(drawStars);
+        }
+
+        window.addEventListener("resize", () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        let audioCtx;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioCtx;
+        }
+
+        // Standard procedural Synthesizer for retroactive cyberpunk micro-soundscapes
+        function playCyberSound(type) {
+            try {
+                const ctxAudio = getAudioContext();
+                if (ctxAudio.state === 'suspended') ctxAudio.resume();
+                
+                const osc = ctxAudio.createOscillator();
+                const gain = ctxAudio.createGain();
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+                
+                const now = ctxAudio.currentTime;
+                
+                if (type === 'adjust_up') {
+                    // Futuristic incremental slide
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(1100, now + 0.12);
+                    gain.gain.setValueAtTime(0.06, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.12);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'adjust_down') {
+                    // Futuristic decremental slide
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(900, now);
+                    osc.frequency.exponentialRampToValueAtTime(330, now + 0.12);
+                    gain.gain.setValueAtTime(0.06, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.12);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'switch_mission') {
+                    // High-tech terminal switch
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, now);
+                    osc.frequency.setValueAtTime(1320, now + 0.05);
+                    gain.gain.setValueAtTime(0.04, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'reset') {
+                    // System degauss reset
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'success') {
+                    // Dynamic ascending melody chime
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    osc.frequency.setValueAtTime(1046.50, now + 0.24); // C6
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'error_alarm') {
+                    // Retro cyber panic siren
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.linearRampToValueAtTime(100, now + 0.22);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.22);
+                    osc.start(now);
+                    osc.stop(now + 0.22);
+                }
+            } catch (e) {
+                console.log("Web Audio synth not interactive yet", e);
+            }
+        }
+
+        const foodDatabase = [
+            {
+                id: "water",
+                name: "💧 電解質水",
+                desc: "維持生存、體液循環與維持細胞滲透壓的最核心載體。喝水不提供任何精神愉悅感，但它是防止脫水休克的生存要素。",
+                tags: ["電解質平衡"],
+                effects: { water: 45, energy: 0, protein: 0, radiation: 10, fibre: 0, morale: 0 }
+            },
+            {
+                id: "broccoli_spinach",
+                name: "🥦 凍乾西蘭花與菠菜",
+                desc: "提供食用纖維與防禦深空輻射的葉酸，但口感單調，會輕微降低士氣。",
+                tags: ["綠色蔬菜", "高纖維"],
+                effects: { water: 0, energy: 5, protein: 5, radiation: 35, fibre: 42, morale: -2 }
+            },
+            {
+                id: "carrot_chips",
+                name: "🥕 胡蘿蔔脆片",
+                desc: "含豐富β-胡蘿蔔素，守護太空人長期注視螢幕的視力。其清脆的口感能在嚼碎時提振些許士氣。",
+                tags: ["抗氧化", "清脆口感"],
+                effects: { water: 8, energy: 10, protein: 2, radiation: 30, fibre: 20, morale: 15 }
+            },
+            {
+                id: "chicken",
+                name: "🥩 凍乾雞肉",
+                desc: "核心優質動物蛋白質來源，強力對抗無重力環境下的肌肉流失及退化。",
+                tags: ["優質動物蛋白"],
+                effects: { water: 0, energy: 10, protein: 35, radiation: 0, fibre: 0, morale: 10 }
+            },
+            {
+                id: "milk_powder",
+                name: "🥛 高鈣脫脂奶粉",
+                desc: "含豐富鈣質與維生素 D，全面守護太空人的骨質密度，並提供一定的水分。",
+                tags: ["高鈣", "水分與礦物質"],
+                effects: { water: 20, energy: 12, protein: 20, radiation: 0, fibre: 0, morale: 0 }
+            },
+            {
+                id: "energy_bar",
+                name: "🚀 壓縮堅果能量棒",
+                desc: "高脂肪與高碳水化合物的組合，但吃多了會因為單調和黏牙而降低士氣。",
+                tags: ["高熱量戰略物資", "碳水化合物"],
+                effects: { water: 5, energy: 35, protein: 10, radiation: 0, fibre: 5, morale: -8 }
+            },
+            {
+                id: "chocolate",
+                name: "🍫 黑巧克力",
+                desc: "太空人的精神救星與神經多巴胺源泉！能瞬間喚醒退化的味覺，帶來純粹的快樂與極高士氣加成。",
+                tags: ["多巴胺", "極高士氣加成"],
+                effects: { water: 0, energy: 20, protein: 0, radiation: 10, fibre: 5, morale: 45 }
+            }
+        ];
+
+        const scenarios = {
+            m1: { name: "太空站駐守任務", targets: { water: 70, energy: 70, protein: 70, radiation: 70, fibre: 70, morale: 70 } },
+            m2: { name: "太陽風暴防禦戰", targets: { water: 70, energy: 70, protein: 70, radiation: 90, fibre: 70, morale: 70 } },
+            m3: { name: "艙外漫步與高強度維修", targets: { water: 80, energy: 85, protein: 85, radiation: 70, fibre: 70, morale: 70 } },
+            m4: { name: "長途深空火星航行", targets: { water: 70, energy: 70, protein: 70, radiation: 70, fibre: 90, morale: 90 } }
+        };
+
+        const foodMap = Object.fromEntries(foodDatabase.map(food => [food.id, food]));
+        const MODAL_STATE_CLASSES = ["glow-green", "glow-yellow", "glow-red"];
+
+        let currentScenario = "m1";
+        let currentMenu = {};
+        
+        foodDatabase.forEach(food => { currentMenu[food.id] = 0; });
+
+        function showToast(msg, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `toast-box ${type}`;
+            
+            let icon = "📡";
+            if (type === "success") icon = "✅";
+            if (type === "warning") icon = "⚠️";
+            if (type === "error") icon = "🚨";
+
+            toast.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.add("show"), 50);
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        function initGame() {
+            initStarfield();
+            drawStars();
+
+            const listContainer = document.getElementById("food-list");
+            listContainer.innerHTML = "";
+
+            foodDatabase.forEach(food => {
+                let tagsHTML = food.tags.map(tag => `<span class="stat-tag pos">${tag}</span>`).join('');
+                if (food.id === "energy_bar" || food.id === "broccoli_spinach") tagsHTML += `<span class="stat-tag neg">降低士氣</span>`;
+                if (food.id === "water") tagsHTML = `<span class="stat-tag" style="background-color:rgba(56,189,248,0.15); color:var(--accent-blue); border:1px solid rgba(56,189,248,0.35);">💧 生存要素</span>` + tagsHTML;
+
+                let card = document.createElement("div");
+                card.id = `card-node-${food.id}`;
+                card.className = "food-card";
+                card.innerHTML = `
+                    <div class="food-info">
+                        <h3>${food.name}</h3>
+                        <p class="food-desc">${food.desc}</p>
+                        <div class="food-stats-tags">${tagsHTML}</div>
+                    </div>
+                    <div class="food-controls">
+                        <button class="btn-ctrl" onclick="adjustFood('${food.id}', -100)">-</button>
+                        <span id="weight-${food.id}" class="weight-display">0 g</span>
+                        <button class="btn-ctrl" onclick="adjustFood('${food.id}', 100)">+</button>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+            selectMission("m1");
+        }
+
+        function resetPantry() {
+            playCyberSound('reset');
+            for (let id in currentMenu) {
+                currentMenu[id] = 0;
+                document.getElementById(`weight-${id}`).innerText = "0 g";
+                document.getElementById(`card-node-${id}`).classList.remove("selected");
+            }
+            updateDashboard();
+            showToast("已成功清空菜單，請重新調配食物！", "warning");
+        }
+
+        function selectMission(mId) {
+            const scenario = scenarios[mId];
+            if (!scenario) return;
+
+            playCyberSound('switch_mission');
+            currentScenario = mId;
+            document.querySelectorAll(".mission-btn").forEach(btn => btn.classList.remove("active"));
+
+            const missionBtn = document.getElementById(`btn-${mId}`);
+            if (missionBtn) missionBtn.classList.add("active");
+
+            const scenarioIndicator = document.getElementById("current-scenario-indicator");
+            if (scenarioIndicator) scenarioIndicator.innerText = `任務：${scenario.name}`;
+
+            const targets = scenario.targets;
+            for (let stat in targets) {
+                const targetValue = targets[stat];
+                const targetValNode = document.getElementById(`tgt-val-${stat}`);
+                const targetLineNode = document.getElementById(`tgt-line-${stat}`);
+                const targetPointerNode = document.getElementById(`tgt-pointer-${stat}`);
+
+                if (targetValNode) targetValNode.innerText = targetValue;
+                if (targetLineNode) targetLineNode.style.left = `${targetValue}%`;
+                if (targetPointerNode) targetPointerNode.style.left = `${targetValue}%`;
+            }
+            updateDashboard();
+        }
+
+        function adjustFood(id, amount) {
+            let currentAmount = currentMenu[id];
+            let newAmount = currentAmount + amount;
+            if (newAmount < 0) return;
+            
+            let prospectiveTotal = 0;
+            for (let key in currentMenu) {
+                prospectiveTotal += (key === id ? newAmount : currentMenu[key]);
+            }
+            prospectiveTotal = Math.round(prospectiveTotal * 100) / 100;
+
+            if (prospectiveTotal > 1000) {
+                playCyberSound('error_alarm');
+                showToast("貨艙位置已滿！單次調配總量不可突破 1000g 的極限。", "error");
+                return;
+            }
+
+            // Synth Audio feedback depending on operation direction
+            if (amount > 0) {
+                playCyberSound('adjust_up');
+            } else {
+                playCyberSound('adjust_down');
+            }
+
+            currentMenu[id] = newAmount;
+            document.getElementById(`weight-${id}`).innerText = `${newAmount} g`;
+            
+            const cardNode = document.getElementById(`card-node-${id}`);
+            if (newAmount > 0) {
+                cardNode.classList.add("selected");
+            } else {
+                cardNode.classList.remove("selected");
+            }
+
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            let { totalWeight, totalStats } = getCalculatedOutputs();
+
+            const weightCounter = document.getElementById("total-weight");
+            const weightBox = document.getElementById("weight-box");
+            const weightSaved = document.getElementById("weight-saved");
+            weightCounter.innerText = `${totalWeight} g`;
+
+            const btnLaunch = document.getElementById("btn-launch");
+            const btnMain = document.getElementById("btn-main-text");
+            const btnSub = document.getElementById("btn-sub-text");
+
+            if (totalWeight > 1000) {
+                weightBox.classList.remove("perfect-saving");
+                weightCounter.className = "weight-counter warning";
+                weightSaved.innerText = `❌ 超過最高運載量！`;
+                weightSaved.style.color = "var(--accent-red)";
+                
+                btnLaunch.className = "btn-launch cold-idle";
+                btnLaunch.disabled = true; 
+                btnMain.innerText = "❌ 火箭載荷超重";
+                btnSub.innerText = `目前總重為 ${totalWeight}g，超出上限，請減少食材！`;
+            } else if (totalWeight === 0) {
+                weightBox.classList.remove("perfect-saving");
+                weightCounter.className = "weight-counter";
+                weightSaved.innerText = `尚未配置任何物資`;
+                weightSaved.style.color = "var(--text-muted)";
+
+                btnLaunch.className = "btn-launch cold-idle";
+                btnLaunch.disabled = true;
+                btnMain.innerText = "⚠️ 尚未配置物資";
+                btnSub.innerText = "請先調配食物以啟動模擬";
+            } else {
+                weightBox.classList.add("perfect-saving");
+                weightCounter.className = "weight-counter success";
+                let saved = 1000 - totalWeight;
+                weightSaved.innerText = `✨ 已成功節省火箭載荷：${saved} g`;
+                weightSaved.style.color = "var(--accent-green)";
+
+                btnLaunch.className = "btn-launch golden-ion";
+                btnLaunch.disabled = false;
+                btnMain.innerText = "🔥 啟動驗收";
+                btnSub.innerText = `當前重量 ${totalWeight}g 處於安全線內，點擊驗收營養指數！`;
+            }
+
+            const activeTargets = scenarios[currentScenario].targets;
+            for (let stat in totalStats) {
+                updateProgressBar(stat, totalStats[stat], activeTargets[stat]);
+            }
+        }
+
+        function getCalculatedOutputs() {
+            let totalWeight = 0;
+            let totalStats = { water: 0, energy: 0, protein: 0, radiation: 0, fibre: 0, morale: 0 };
+
+            for (let id in currentMenu) {
+                let weight = currentMenu[id];
+                totalWeight += weight;
+
+                let foodConfig = foodMap[id];
+                if (foodConfig) {
+                    let portions = weight / 100;
+                    for (let stat in totalStats) {
+                        totalStats[stat] += (foodConfig.effects[stat] || 0) * portions;
+                    }
+                }
+            }
+
+            totalWeight = Math.round(totalWeight * 100) / 100;
+
+            for (let stat in totalStats) {
+                if (totalStats[stat] < 0) totalStats[stat] = 0;
+                if (totalStats[stat] > 100) totalStats[stat] = 100;
+            }
+
+            return { totalWeight, totalStats };
+        }
+
+        function updateProgressBar(id, value, targetThreshold) {
+            const bar = document.getElementById(`bar-${id}`);
+            const text = document.getElementById(`val-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            
+            let roundedVal = Math.round(value);
+            text.innerText = `${roundedVal}%`;
+            bar.style.width = `${roundedVal}%`;
+
+            // Reset dynamic icon bio-indicator class configurations
+            icon.className = "indicator-icon";
+
+            if (roundedVal < (targetThreshold - 25)) {
+                // Critical Alert phase - Shaking and Red warning
+                bar.style.backgroundColor = "var(--accent-red)";
+                bar.style.boxShadow = "0 0 12px rgba(248, 113, 113, 0.6)";
+                icon.classList.add("icon-danger");
+            } else if (roundedVal < targetThreshold) {
+                // Static caution warnings phase
+                bar.style.backgroundColor = "var(--accent-amber)";
+                bar.style.boxShadow = "0 0 12px rgba(251, 191, 36, 0.6)";
+                icon.classList.add("icon-warning");
+            } else {
+                // Safe and optimal metrics completed - Calm pulse
+                bar.style.backgroundColor = (id === 'water') ? "var(--accent-blue)" : "var(--accent-green)";
+                bar.style.boxShadow = (id === 'water') ? "0 0 12px rgba(56, 189, 248, 0.6)" : "0 0 12px rgba(74, 222, 128, 0.6)";
+                icon.classList.add("icon-success");
+            }
+        }
+
+        function startVerificationSequence() {
+            let { totalWeight } = getCalculatedOutputs();
+            
+            if (totalWeight > 1000) {
+                playCyberSound('error_alarm');
+                showToast("火箭載荷超重！無法啟動驗收，請先減少食材。", "error");
+                return;
+            }
+            if (totalWeight === 0) {
+                playCyberSound('error_alarm');
+                showToast("餐盤是空的！請先調配食物以啟動模擬。", "warning");
+                return;
+            }
+
+            // Play procedural communication click beep
+            playCyberSound('switch_mission');
+
+            const overlay = document.getElementById("result-modal");
+            const loader = document.getElementById("loader-stage");
+            const diagnostics = document.getElementById("diagnostics-stage");
+            const ticker = document.getElementById("loader-ticker");
+
+            overlay.className = "modal-overlay active scanning";
+            loader.style.display = "flex";
+            diagnostics.style.display = "none";
+
+            const diagnosticsSteps = [
+                "正在建立量子傳輸通道...",
+                "正在解析太空人生命表徵數據...",
+                "正在估算深空離子輻射防禦指數...",
+                "正在生成火箭配重與運載方案..."
+            ];
+
+            let step = 0;
+            ticker.innerText = diagnosticsSteps[0];
+            const interval = setInterval(() => {
+                step++;
+                if (step < diagnosticsSteps.length) {
+                    ticker.innerText = diagnosticsSteps[step];
+                } else {
+                    clearInterval(interval);
+                    showCalculatedResults();
+                }
+            }, 450);
+        }
+
+        function showCalculatedResults() {
+            const overlay = document.getElementById("result-modal");
+            const loader = document.getElementById("loader-stage");
+            const diagnostics = document.getElementById("diagnostics-stage");
+            const modalWrapper = document.getElementById("modal-wrapper");
+
+            overlay.classList.remove("scanning");
+            overlay.classList.remove(...MODAL_STATE_CLASSES);
+            loader.style.display = "none";
+            diagnostics.style.display = "block";
+            modalWrapper.classList.remove("shake");
+
+            let { totalWeight, totalStats } = getCalculatedOutputs();
+            const activeTargets = scenarios[currentScenario].targets;
+            const sName = scenarios[currentScenario].name;
+
+            const gridSummary = document.getElementById("modal-grid-summary");
+            gridSummary.innerHTML = "";
+
+            const vitalAttributes = [
+                { id: 'water', name: "💧 水分", max: 100 },
+                { id: 'energy', name: "🔋 能量", max: 100 },
+                { id: 'protein', name: "💪 蛋白", max: 100 },
+                { id: 'radiation', name: "🛡️ 輻射", max: 100 },
+                { id: 'fibre', name: "🥬 纖維", max: 100 },
+                { id: 'morale', name: "❤️ 士氣", max: 100 }
+            ];
+
+            vitalAttributes.forEach(attr => {
+                const curVal = Math.round(totalStats[attr.id]);
+                const tgtVal = activeTargets[attr.id];
+                const isPass = curVal >= tgtVal;
+                
+                let stateClass = "success";
+                if (!isPass) {
+                    stateClass = (tgtVal - curVal >= 25) ? "danger" : "warning";
+                }
+
+                gridSummary.innerHTML += `
+                    <div class="diagnostic-card ${stateClass}">
+                        <div class="diag-label">${attr.name} (目標: ${tgtVal}%)</div>
+                        <div class="diag-stat">${curVal}% ${isPass ? '✓' : '✗'}</div>
+                    </div>
+                `;
+            });
+
+            let failedStats = [];
+            for (let stat in activeTargets) {
+                if (totalStats[stat] < activeTargets[stat]) {
+                    failedStats.push({
+                        stat: stat,
+                        current: Math.round(totalStats[stat]),
+                        target: activeTargets[stat],
+                        severity: (activeTargets[stat] - totalStats[stat]) >= 25 ? 'red' : 'yellow'
+                    });
+                }
+            }
+
+            // SUCCESS / PASSING OUTCOME
+            if (failedStats.length === 0) {
+                // Play ascending retro chime synthesizer
+                playCyberSound('success');
+
+                let medalIcon = "";
+                let medalTitle = "";
+                let medalDesc = "";
+                let ambientClass = "glow-green";
+
+                if (totalWeight <= 850) {
+                    medalIcon = "🥇";
+                    medalTitle = "金牌 · 輕量化大師";
+                    medalDesc = `<strong>這是不可能完成的任務！</strong>你用神級的配餐智慧，在極限重量（${totalWeight}g）下完美餵飽了太空人。太空物流局宣布將你的食譜列為絕密教材，你幫火箭省下了數十萬美元的燃料！`;
+                } else if (totalWeight <= 949) {
+                    medalIcon = "🥈";
+                    medalTitle = "銀牌 · 物流優化專家";
+                    medalDesc = `<strong>非常出色的策略！</strong>所有指數達標，並且成功將總重量壓低至 ${totalWeight}g。你證明了你不是在死板湊數，而是具備真正的深空資源調配眼光！`;
+                } else {
+                    medalIcon = "🥉";
+                    medalTitle = "銅牌 · 安全過關";
+                    medalDesc = `<strong>成功升空！</strong>一日菜單總重量為 ${totalWeight}g。雖然卡在臨界線附近，但太空人所有的生理及心理需求都得到了安全保障。`;
+                }
+
+                overlay.classList.add(ambientClass);
+                document.getElementById("modal-icon").innerText = medalIcon;
+                document.getElementById("modal-icon").style.color = "var(--accent-green)";
+                
+                const mTitle = document.getElementById("modal-title");
+                mTitle.innerText = medalTitle;
+                mTitle.className = "modal-title win";
+
+                document.getElementById("modal-text").innerHTML = `
+                    <strong>🎉 任務圓滿成功！</strong><br><br>
+                    <strong>📊 挑戰任務：</strong>${sName}<br>
+                    <strong>⚖️ 最終菜單總重：</strong>${totalWeight} g<br><br>
+                    ${medalDesc}
+                `;
+                return;
+            }
+
+            // FAILURES OUTCOME - Play warning low-pitch alarm sound
+            playCyberSound('error_alarm');
+
+            const vitalPriority = { water: 10, energy: 5, protein: 4, radiation: 3, fibre: 2, morale: 1 };
+            failedStats.sort((a, b) => {
+                if (a.severity === 'red' && b.severity === 'yellow') return -1;
+                if (a.severity === 'yellow' && b.severity === 'red') return 1;
+                let pA = vitalPriority[a.stat] || 0;
+                let pB = vitalPriority[b.stat] || 0;
+                if (pA !== pB) return pB - pA;
+                return (b.target - b.current) - (a.target - a.current);
+            });
+
+            const primaryFail = failedStats[0];
+            const statNames = { water: "💧 水分與電解質平衡", energy: "🔋 能量供應", protein: "💪 肌肉維持", radiation: "🛡️ 輻射抗性", fibre: "🥬 腸道健康", morale: "❤️ 心理士氣" };
+            
+            let dynamicTip = "";
+            const dynamicSolutionMap = {
+                water: ["water", "milk_powder", "energy_bar"],
+                energy: ["energy_bar", "chocolate", "milk_powder"],
+                protein: ["chicken", "milk_powder"],
+                radiation: ["broccoli_spinach", "carrot_chips", "chocolate"],
+                fibre: ["broccoli_spinach", "carrot_chips", "energy_bar"],
+                morale: ["chocolate", "carrot_chips", "chicken"]
+            };
+
+            let potentialHelpers = dynamicSolutionMap[primaryFail.stat] || [];
+            let recommendedFoodName = "";
+            const remainingCapacity = 1000 - totalWeight;
+            const canDirectlyAdd = remainingCapacity >= 100;
+            
+            for (let foodId of potentialHelpers) {
+                const foodObj = foodMap[foodId];
+                if (foodObj) {
+                    recommendedFoodName = foodObj.name;
+                    break;
+                }
+            }
+
+            if (canDirectlyAdd && recommendedFoodName) {
+                dynamicTip = `<div class="ai-tip-container">💡 <strong>【AI 微調指引】：</strong>目前火箭還有載荷餘額（當前 ${totalWeight}g，尚餘 ${remainingCapacity}g）。建議直接<strong>增加【${recommendedFoodName}】</strong>來定向提升這項關鍵指數。</div>`;
+            } else if (recommendedFoodName) {
+                dynamicTip = `<div class="ai-tip-container">💡 <strong>【AI 微調指引】：</strong>目前總重量已接近或達到 1000g 封頂（當前 ${totalWeight}g）。建議優先<strong>減少其他食材或重新配置</strong>，再加入<strong>【${recommendedFoodName}】</strong>來突破瓶頸。</div>`;
+            }
+
+            let feedbackTitle = "";
+            let feedbackText = "";
+            let ambientClass = "";
+            let icon = "";
+
+            if (primaryFail.severity === 'red') {
+                icon = "🚨";
+                ambientClass = "glow-red";
+                feedbackTitle = `致命危機：${statNames[primaryFail.stat]}重度崩潰！`;
+                
+                modalWrapper.classList.add("shake");
+                
+                const redTexts = {
+                    water: "【🚨 最高生命紅線斷裂】太空人體液高度濃縮，引發急性重度脫水與電解質休克，各個核心器官迅速衰竭，火箭發射程序被迫強制終止！",
+                    energy: "太空人因極度低血糖在艙內直接陷入昏迷，火箭面臨失控脫軌風險！",
+                    protein: "無重力環境瘋狂吞噬抗重力肌肉，太空人手腳肌肉重度萎縮，甚至無力按壓儀器開關！",
+                    radiation: "宇宙輻射強烈穿透艙體。因極度缺乏葉酸與抗氧化劑，太空人白血球計數大幅下跌，免疫系統崩潰！",
+                    fibre: "由於完全沒有攝取食用纖維，太空人便秘和腹脹，腸道完全停止蠕動，痛苦得無法執行任何科研！",
+                    morale: "菜單完全缺乏黑巧克力等安慰食品，太空人陷入抑鬱，拒絕執行地球指揮部的任何指令！"
+                };
+                feedbackText = `<strong>${statNames[primaryFail.stat]} 實測：${primaryFail.current}% （目標需達到 ${primaryFail.target}%）</strong><br><br><span style='color:var(--accent-red); font-weight:bold;'>【🔴 太空生命維持系統 - 嚴重致命警報】</span><br>${redTexts[primaryFail.stat]}<br><br>${dynamicTip}`;
+            } else {
+                icon = "⚠️";
+                ambientClass = "glow-yellow";
+                feedbackTitle = `功虧一簣：${statNames[primaryFail.stat]}未能達標！`;
+                
+                const yellowTexts = {
+                    water: "水分處於臨界安全線以下！太空人體力大幅下滑、口舌乾燥，處於輕度脫水邊緣，無法應對高強度突發工作。",
+                    energy: "太空人雖然勉強能維持操作，但到了下午就手腳發軟、精力不濟，科研產出下滑。",
+                    protein: "蛋白質攝入偏低，太空人的握力測試與肌肉質量正呈現緩慢退化趨勢。",
+                    radiation: "輻射防禦網不夠厚！由於西蘭花或胡蘿蔔配置不足，太空人體內的自由基指數偏高。",
+                    fibre: "食用纖維稍微不足！太空人排便不順暢，已經稍微影響到了日常作息與睡眠品質。",
+                    morale: "多巴胺不足！太空人在日誌中寫道：「雖然喝足了水，但沒有巧克力，生活毫無樂趣可言。」心理防線處於抑鬱臨界邊緣。"
+                };
+                feedbackText = `<strong>${statNames[primaryFail.stat]} 實測：${primaryFail.current}% （目標需達到 ${primaryFail.target}%）</strong><br><br><span style='color:var(--accent-amber); font-weight:bold;'>【🟡 太空生命維持系統 - 黃色及格線警告】</span><br>${yellowTexts[primaryFail.stat]}<br><br>${dynamicTip}`;
+            }
+
+            overlay.classList.add(ambientClass);
+            document.getElementById("modal-icon").innerText = icon;
+            document.getElementById("modal-icon").style.color = primaryFail.severity === 'red' ? 'var(--accent-red)' : 'var(--accent-amber)';
+            
+            const mTitle = document.getElementById("modal-title");
+            mTitle.innerText = feedbackTitle;
+            mTitle.className = `modal-title ${primaryFail.severity === 'red' ? 'crit-fail' : 'warn-fail'}`;
+            document.getElementById("modal-text").innerHTML = feedbackText;
+        }
+
+        function closeModal() {
+            playCyberSound('switch_mission');
+            const overlay = document.getElementById("result-modal");
+            const modalWrapper = document.getElementById("modal-wrapper");
+            overlay.classList.remove("active", "scanning", ...MODAL_STATE_CLASSES);
+            modalWrapper.classList.remove("shake");
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
